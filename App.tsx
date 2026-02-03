@@ -217,7 +217,7 @@ function App() {
     
     // Header
     doc.setFontSize(16);
-    doc.setTextColor(76, 29, 149); // Violet-900
+    doc.setTextColor(76, 29, 149); // Violet-900 (Kept dark for white PDF paper)
     doc.text(`Laporan Kehadiran: ${monthName}`, 14, 20);
     
     doc.setFontSize(11);
@@ -278,7 +278,8 @@ function App() {
     <div 
       className="min-h-screen pb-12 bg-cover bg-center bg-fixed bg-no-repeat font-sans"
       style={{
-        backgroundImage: `url('https://images.unsplash.com/photo-1620641788421-7f1c91ade639?q=80&w=2560&auto=format&fit=crop')` // Stunning Seamless Gradient
+        // Switched to a darker, more abstract background for Dark Mode
+        backgroundImage: `url('https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=2560&auto=format&fit=crop')` 
       }}
     >
       {/* 
@@ -288,24 +289,24 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
             
-            {/* Logo / Title Area */}
-            <div className="w-full md:w-auto bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 shadow-xl flex items-center justify-center md:justify-start gap-4 hover:bg-white/15 transition-colors duration-300">
-               <div className="bg-gradient-to-br from-violet-500 to-fuchsia-500 p-3 rounded-xl shadow-lg">
+            {/* Logo / Title Area - Glassmorphism optimized for dark */}
+            <div className="w-full md:w-auto bg-gray-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-xl flex items-center justify-center md:justify-start gap-4 hover:bg-gray-900/50 transition-colors duration-300">
+               <div className="bg-gradient-to-br from-violet-600 to-fuchsia-600 p-3 rounded-xl shadow-lg shadow-violet-900/20">
                  <CalendarIcon />
                </div>
                <div className="text-left">
                   <h1 className="text-2xl font-bold text-white tracking-tight drop-shadow-sm leading-none">e-Harian</h1>
-                  <span className="text-xs text-blue-100 font-medium tracking-wider uppercase">Sistem Kehadiran</span>
+                  <span className="text-xs text-gray-300 font-medium tracking-wider uppercase">Sistem Kehadiran</span>
                </div>
             </div>
 
             {/* Clock Area */}
             <div className="w-full md:w-auto flex flex-col items-center md:items-end">
-               <div className="w-full md:w-auto bg-black/20 backdrop-blur-md rounded-2xl px-6 py-3 border border-white/10 shadow-lg text-white">
-                  <div className="text-xs font-medium text-blue-200 uppercase tracking-widest text-center mb-1">
+               <div className="w-full md:w-auto bg-black/40 backdrop-blur-md rounded-2xl px-6 py-3 border border-white/5 shadow-lg text-white">
+                  <div className="text-xs font-medium text-blue-300 uppercase tracking-widest text-center mb-1">
                     {currentTime.toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </div>
-                  <div className="text-4xl font-mono font-bold tracking-wider drop-shadow-lg text-center">
+                  <div className="text-4xl font-mono font-bold tracking-wider drop-shadow-lg text-center text-white">
                     {currentTime.toLocaleTimeString('ms-MY')}
                   </div>
                </div>
@@ -318,26 +319,26 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 sm:-mt-24 relative z-20">
         {/* Status Cards / Actions */}
         <div className="mb-6 sm:mb-8 transform transition-all hover:scale-[1.01] duration-300">
-          {/* Stats Card - Enhanced Glassmorphism */}
+          {/* Stats Card - Enhanced Glassmorphism for Dark Mode */}
           <StatCard 
             title="Jumlah Jam (Bulan Ini)"
             value={calculateTotalMonthHours()}
             icon={<ClockIcon />}
-            colorClass="bg-gradient-to-br from-cyan-400 to-blue-500 text-white shadow-lg"
+            colorClass="bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg"
           />
         </div>
 
-        {/* Month Navigation & Table - Glassmorphism Effect */}
-        <div className="bg-white/90 backdrop-blur-lg shadow-2xl shadow-black/5 rounded-3xl p-1 border border-white/60">
-           <div className="bg-white/50 rounded-[1.4rem] p-4 sm:p-6">
+        {/* Month Navigation & Table - Glassmorphism Effect Dark */}
+        <div className="bg-gray-900/80 backdrop-blur-xl shadow-2xl shadow-black/20 rounded-3xl p-1 border border-white/10">
+           <div className="bg-gray-800/50 rounded-[1.4rem] p-4 sm:p-6">
               
               {/* Username Input Section - Enhanced with Error Validation */}
-              <div className={`mb-6 bg-white rounded-xl p-4 shadow-sm border transition-all duration-300 ${usernameError ? 'border-red-400 ring-4 ring-red-50' : 'border-gray-100'} flex items-center gap-4`}>
-                 <div className={`p-2.5 rounded-lg transition-colors duration-300 ${usernameError ? 'bg-red-50 text-red-500' : 'bg-violet-50 text-violet-600'}`}>
+              <div className={`mb-6 bg-gray-800 rounded-xl p-4 shadow-sm border transition-all duration-300 ${usernameError ? 'border-red-400/50 ring-4 ring-red-900/20' : 'border-gray-700'} flex items-center gap-4`}>
+                 <div className={`p-2.5 rounded-lg transition-colors duration-300 ${usernameError ? 'bg-red-900/20 text-red-400' : 'bg-violet-900/30 text-violet-300'}`}>
                     <UserIcon />
                  </div>
                  <div className="flex-1">
-                    <label htmlFor="username" className={`block text-xs font-semibold uppercase tracking-wider mb-1 transition-colors ${usernameError ? 'text-red-500' : 'text-gray-500'}`}>
+                    <label htmlFor="username" className={`block text-xs font-semibold uppercase tracking-wider mb-1 transition-colors ${usernameError ? 'text-red-400' : 'text-gray-400'}`}>
                        Nama Pekerja {usernameError && <span className="normal-case text-red-400 ml-2 italic">- Diperlukan</span>}
                     </label>
                     <input 
@@ -349,10 +350,10 @@ function App() {
                         if (e.target.value.trim()) setUsernameError('');
                       }}
                       placeholder="Masukkan nama penuh anda..."
-                      className={`w-full border-none p-0 font-medium placeholder-gray-400 focus:ring-0 bg-transparent text-sm sm:text-base transition-colors ${usernameError ? 'text-red-900' : 'text-gray-800'}`}
+                      className={`w-full border-none p-0 font-medium placeholder-gray-500 focus:ring-0 bg-transparent text-sm sm:text-base transition-colors ${usernameError ? 'text-red-300' : 'text-white'}`}
                     />
                     {usernameError && (
-                      <p className="text-xs text-red-500 mt-1 font-medium animate-pulse">
+                      <p className="text-xs text-red-400 mt-1 font-medium animate-pulse">
                          * Sila isikan nama sebelum memuat turun laporan.
                       </p>
                     )}
@@ -364,14 +365,14 @@ function App() {
                 <div className="hidden xl:block xl:w-1/4"></div>
 
                 {/* Center: Month Navigation */}
-                <div className="w-full xl:w-1/2 flex items-center justify-between sm:justify-center space-x-2 sm:space-x-6 bg-white p-2 rounded-xl sm:rounded-full border border-gray-100 shadow-sm">
-                    <button onClick={() => changeMonth(-1)} className="p-2 sm:p-2.5 hover:bg-gray-50 rounded-full transition-all text-gray-400 hover:text-violet-600">
+                <div className="w-full xl:w-1/2 flex items-center justify-between sm:justify-center space-x-2 sm:space-x-6 bg-gray-800 p-2 rounded-xl sm:rounded-full border border-gray-700 shadow-sm">
+                    <button onClick={() => changeMonth(-1)} className="p-2 sm:p-2.5 hover:bg-gray-700 rounded-full transition-all text-gray-400 hover:text-white">
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
                     </button>
-                    <h2 className="text-base sm:text-lg font-bold text-gray-800 uppercase tracking-wide whitespace-nowrap min-w-[120px] sm:min-w-[150px] text-center">
+                    <h2 className="text-base sm:text-lg font-bold text-gray-200 uppercase tracking-wide whitespace-nowrap min-w-[120px] sm:min-w-[150px] text-center">
                       {currentMonth.toLocaleDateString('ms-MY', { month: 'long', year: 'numeric' })}
                     </h2>
-                    <button onClick={() => changeMonth(1)} className="p-2 sm:p-2.5 hover:bg-gray-50 rounded-full transition-all text-gray-400 hover:text-violet-600">
+                    <button onClick={() => changeMonth(1)} className="p-2 sm:p-2.5 hover:bg-gray-700 rounded-full transition-all text-gray-400 hover:text-white">
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
                     </button>
                 </div>
@@ -386,7 +387,7 @@ function App() {
                        <select 
                           value={exportFilter}
                           onChange={(e) => setExportFilter(e.target.value as 'all' | 'filled')}
-                          className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 shadow-sm appearance-none cursor-pointer hover:bg-gray-50 transition-colors text-gray-700 font-medium"
+                          className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-600 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 shadow-sm appearance-none cursor-pointer hover:bg-gray-700 transition-colors text-gray-200 font-medium"
                        >
                           <option value="all">Laporan: Semua Tarikh</option>
                           <option value="filled">Laporan: Tarikh Berisi Sahaja</option>
@@ -394,11 +395,11 @@ function App() {
                     </div>
 
                     <div className="flex flex-row gap-2 w-full">
-                        <Button variant="secondary" onClick={handleExportCSV} className="flex-1 flex items-center justify-center gap-2 border-gray-200 !rounded-xl hover:bg-gray-50 text-xs sm:text-sm" title="Muat Turun CSV">
+                        <Button variant="secondary" onClick={handleExportCSV} className="flex-1 flex items-center justify-center gap-2 !rounded-xl text-xs sm:text-sm" title="Muat Turun CSV">
                           <DownloadIcon />
                           <span>CSV</span>
                         </Button>
-                        <Button variant="secondary" onClick={handleExportPDF} className="flex-1 flex items-center justify-center gap-2 border-gray-200 !rounded-xl hover:bg-gray-50 text-xs sm:text-sm" title="Muat Turun PDF">
+                        <Button variant="secondary" onClick={handleExportPDF} className="flex-1 flex items-center justify-center gap-2 !rounded-xl text-xs sm:text-sm" title="Muat Turun PDF">
                           <DocumentTextIcon />
                           <span>PDF</span>
                         </Button>
@@ -420,21 +421,21 @@ function App() {
       {noteModal.isOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-md transition-opacity" onClick={() => setNoteModal({...noteModal, isOpen: false})}></div>
+            <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm transition-opacity" onClick={() => setNoteModal({...noteModal, isOpen: false})}></div>
             <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div className="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-gray-100 ring-1 ring-black/5">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-8">
+            <div className="inline-block align-bottom bg-gray-800 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-gray-700 ring-1 ring-white/10">
+              <div className="bg-gray-800 px-4 pt-5 pb-4 sm:p-8">
                 <div className="sm:flex sm:items-start">
-                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 sm:mx-0 sm:h-12 sm:w-12 text-blue-600 ring-8 ring-blue-50/50">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-900/30 sm:mx-0 sm:h-12 sm:w-12 text-blue-400 ring-8 ring-blue-900/10">
                     <ChatBubbleIcon />
                   </div>
                   <div className="mt-3 text-center sm:mt-0 sm:ml-5 sm:text-left w-full">
-                    <h3 className="text-lg leading-6 font-bold text-gray-900" id="modal-title">
+                    <h3 className="text-lg leading-6 font-bold text-white" id="modal-title">
                       Catatan: {new Date(noteModal.date).toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </h3>
                     <div className="mt-4">
                       <textarea
-                        className="w-full shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full text-base border-gray-200 rounded-2xl p-4 border transition-shadow bg-gray-50"
+                        className="w-full shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full text-base border-gray-700 rounded-2xl p-4 transition-shadow bg-gray-900 text-white placeholder-gray-500"
                         rows={4}
                         placeholder="Masukkan catatan anda di sini..."
                         value={noteModal.text}
@@ -444,8 +445,8 @@ function App() {
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-50 px-4 py-4 sm:px-8 sm:flex sm:flex-row-reverse gap-3 flex-col sm:flex-row">
-                <Button variant="primary" onClick={handleSaveNote} className="!rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 w-full sm:w-auto">
+              <div className="bg-gray-800/50 px-4 py-4 sm:px-8 sm:flex sm:flex-row-reverse gap-3 flex-col sm:flex-row border-t border-gray-700">
+                <Button variant="primary" onClick={handleSaveNote} className="!rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 w-full sm:w-auto">
                   Simpan
                 </Button>
                 <Button variant="secondary" onClick={() => setNoteModal({...noteModal, isOpen: false})} className="!rounded-full w-full sm:w-auto">
@@ -458,7 +459,7 @@ function App() {
       )}
 
       {/* Footer */}
-      <footer className="mt-12 text-center text-white/70 text-sm pb-8 font-medium drop-shadow-md">
+      <footer className="mt-12 text-center text-white/50 text-sm pb-8 font-medium drop-shadow-md">
         <p>&copy; {new Date().getFullYear()} Sistem e-Harian.</p>
       </footer>
     </div>
