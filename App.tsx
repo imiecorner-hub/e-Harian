@@ -12,6 +12,7 @@ const CheckCircleIcon = () => <svg className="w-6 h-6" fill="none" stroke="curre
 const CalendarIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
 const DownloadIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>;
 const DocumentTextIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
+const TxtIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
 const ChatBubbleIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>;
 const UserIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
 const FilterIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>;
@@ -274,6 +275,76 @@ function App() {
     doc.save(`${cleanName}_${exportFilter}.pdf`);
   };
 
+  // Export TXT Handler
+  const handleExportTXT = () => {
+    if (!validateUsername()) return;
+
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const cleanName = username.trim().replace(/\s+/g, '_');
+    const monthName = currentMonth.toLocaleDateString('ms-MY', { month: 'long', year: 'numeric' });
+
+    let txtContent = `LAPORAN KEHADIRAN\n`;
+    txtContent += `========================================================\n`;
+    txtContent += `Nama Pekerja : ${username}\n`;
+    txtContent += `Bulan        : ${monthName}\n`;
+    txtContent += `Jenis Laporan: ${exportFilter === 'filled' ? 'Tarikh Berisi Sahaja' : 'Semua Tarikh'}\n`;
+    txtContent += `Jumlah Jam   : ${calculateTotalMonthHours()}\n`;
+    txtContent += `========================================================\n\n`;
+
+    // Table Header
+    txtContent += `| Tarikh     | Hari      | Masuk | Keluar | Tempoh |\n`;
+    txtContent += `|------------|-----------|-------|--------|--------|\n`;
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      const dateObj = new Date(year, month, i);
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+      const record = records.find(r => r.date === dateStr) || { date: dateStr, inTime: null, outTime: null, note: '' };
+      
+      // Filter Logic
+      const hasData = record.inTime || record.outTime;
+      if (exportFilter === 'filled' && !hasData) {
+        continue;
+      }
+
+      const formattedDate = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const dayName = dateObj.toLocaleDateString('ms-MY', { weekday: 'long' });
+      
+      const inTime = record.inTime || '-';
+      const outTime = record.outTime || '-';
+      
+      // Calculate Duration Inline
+      let duration = '-';
+      if (record.inTime && record.outTime) {
+        const [inH, inM] = record.inTime.split(':').map(Number);
+        const [outH, outM] = record.outTime.split(':').map(Number);
+        let diff = (outH * 60 + outM) - (inH * 60 + inM);
+        if (diff > 0) {
+          duration = `${Math.floor(diff / 60)}j ${diff % 60}m`;
+        }
+      }
+
+      // Format Row (Padding for alignment)
+      txtContent += `| ${formattedDate.padEnd(10)} | ${dayName.padEnd(9)} | ${inTime.padEnd(5)} | ${outTime.padEnd(6)} | ${duration.padEnd(6)} |\n`;
+    }
+    
+    txtContent += `--------------------------------------------------------\n`;
+    txtContent += `Dijana pada: ${new Date().toLocaleString('ms-MY')}`;
+
+    const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${cleanName}_${exportFilter}.txt`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <div 
       className="min-h-screen pb-12 bg-cover bg-center bg-fixed bg-no-repeat font-sans"
@@ -402,6 +473,10 @@ function App() {
                         <Button variant="secondary" onClick={handleExportPDF} className="flex-1 flex items-center justify-center gap-2 !rounded-xl text-xs sm:text-sm" title="Muat Turun PDF">
                           <DocumentTextIcon />
                           <span>PDF</span>
+                        </Button>
+                        <Button variant="secondary" onClick={handleExportTXT} className="flex-1 flex items-center justify-center gap-2 !rounded-xl text-xs sm:text-sm" title="Muat Turun TXT">
+                          <TxtIcon />
+                          <span>TXT</span>
                         </Button>
                     </div>
                 </div>
