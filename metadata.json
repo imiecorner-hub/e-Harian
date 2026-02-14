@@ -1,5 +1,5 @@
 {
   "name": "e-Harian",
-  "description": "Aplikasi rekod kehadiran harian (Masuk/Keluar) dengan analisis kehadiran pintar menggunakan Gemini AI.",
+  "description": "Aplikasi rekod kehadiran harian (Masuk/Keluar) dengan eksport PDF dan CSV.",
   "requestFramePermissions": []
 }
