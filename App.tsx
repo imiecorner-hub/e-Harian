@@ -6,7 +6,11 @@ import { PunchRecord } from './types';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-// Icons (Updated styles)
+// Theme Types
+type Theme = "light" | "dark" | "system";
+const THEME_KEY = "theme";
+
+// Icons
 const ClockIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 const CheckCircleIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 const CalendarIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
@@ -17,14 +21,25 @@ const ChatBubbleIcon = () => <svg className="w-6 h-6" fill="none" stroke="curren
 const UserIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
 const FilterIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>;
 
+// Theme Icons
+const SunIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>;
+const MoonIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>;
+const SystemIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>;
+
+
 function App() {
-  // State
+  // Theme State
+  const [theme, setTheme] = useState<Theme>('system');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [activeThemeIcon, setActiveThemeIcon] = useState<React.ReactNode>(<SystemIcon />);
+
+  // App State
   const [username, setUsername] = useState('');
   const [usernameError, setUsernameError] = useState('');
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [records, setRecords] = useState<PunchRecord[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [exportFilter, setExportFilter] = useState<'all' | 'filled'>('all'); // New Export Filter State
+  const [exportFilter, setExportFilter] = useState<'all' | 'filled'>('all');
   
   // Note Modal State
   const [noteModal, setNoteModal] = useState<{isOpen: boolean, date: string, text: string}>({
@@ -32,6 +47,49 @@ function App() {
     date: '',
     text: ''
   });
+
+  // --- Theme Logic ---
+  function setRootDark(isDark: boolean) {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }
+
+  function getSystemPref(): boolean {
+    return window.matchMedia?.("(prefers-color-scheme: dark)")?.matches ?? false;
+  }
+
+  function applyTheme(selectedTheme: Theme) {
+    if (selectedTheme === "system") {
+      setRootDark(getSystemPref());
+      setActiveThemeIcon(<SystemIcon />);
+    } else {
+      setRootDark(selectedTheme === "dark");
+      setActiveThemeIcon(selectedTheme === "dark" ? <MoonIcon /> : <SunIcon />);
+    }
+    localStorage.setItem(THEME_KEY, selectedTheme);
+    setTheme(selectedTheme);
+  }
+
+  // Initialize Theme
+  useEffect(() => {
+    const savedTheme = (localStorage.getItem(THEME_KEY) as Theme) || 'system';
+    applyTheme(savedTheme);
+
+    // Listener for system changes if mode is 'system'
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => {
+      if (localStorage.getItem(THEME_KEY) === 'system') {
+        setRootDark(mediaQuery.matches);
+      }
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  // --- End Theme Logic ---
 
   // Load records and username from local storage on mount
   useEffect(() => {
@@ -66,9 +124,6 @@ function App() {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-
-  const getTodayStr = () => currentTime.toISOString().split('T')[0];
-  const getCurrentTimeStr = () => currentTime.toTimeString().slice(0, 5); // HH:mm
 
   // Handle Manual Edits from Table (Time and Notes)
   const handleEdit = (date: string, type: 'inTime' | 'outTime' | 'note', value: string) => {
@@ -286,16 +341,16 @@ function App() {
     const monthName = currentMonth.toLocaleDateString('ms-MY', { month: 'long', year: 'numeric' });
 
     let txtContent = `LAPORAN KEHADIRAN\n`;
-    txtContent += `========================================================\n`;
+    txtContent += `=================================================================\n`;
     txtContent += `Nama Pekerja : ${username}\n`;
     txtContent += `Bulan        : ${monthName}\n`;
     txtContent += `Jenis Laporan: ${exportFilter === 'filled' ? 'Tarikh Berisi Sahaja' : 'Semua Tarikh'}\n`;
     txtContent += `Jumlah Jam   : ${calculateTotalMonthHours()}\n`;
-    txtContent += `========================================================\n\n`;
+    txtContent += `=================================================================\n\n`;
 
-    // Table Header
-    txtContent += `| Tarikh     | Hari      | Masuk | Keluar | Tempoh |\n`;
-    txtContent += `|------------|-----------|-------|--------|--------|\n`;
+    // Table Header with better spacing
+    txtContent += `| Tarikh     | Hari       | Masuk | Keluar | Tempoh   |\n`;
+    txtContent += `|------------|------------|-------|--------|----------|\n`;
 
     for (let i = 1; i <= daysInMonth; i++) {
       const dateObj = new Date(year, month, i);
@@ -326,10 +381,10 @@ function App() {
       }
 
       // Format Row (Padding for alignment)
-      txtContent += `| ${formattedDate.padEnd(10)} | ${dayName.padEnd(9)} | ${inTime.padEnd(5)} | ${outTime.padEnd(6)} | ${duration.padEnd(6)} |\n`;
+      txtContent += `| ${formattedDate.padEnd(10)} | ${dayName.padEnd(10)} | ${inTime.padEnd(5)} | ${outTime.padEnd(6)} | ${duration.padEnd(8)} |\n`;
     }
     
-    txtContent += `--------------------------------------------------------\n`;
+    txtContent += `-----------------------------------------------------------------\n`;
     txtContent += `Dijana pada: ${new Date().toLocaleString('ms-MY')}`;
 
     const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8;' });
@@ -345,14 +400,22 @@ function App() {
     }
   };
 
+  // Determine Background Style based on current document class
+  // Since React render might happen before document class update, using a simple check or CSS approach is safer.
+  // Here we use standard classes and let Tailwind 'dark:' handle it.
+  
   return (
     <div 
-      className="min-h-screen pb-12 bg-cover bg-center bg-fixed bg-no-repeat font-sans"
+      className="min-h-screen pb-12 bg-cover bg-center bg-fixed bg-no-repeat font-sans transition-all duration-500 ease-in-out"
       style={{
-        // Switched to a darker, more abstract background for Dark Mode
-        backgroundImage: `url('https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=2560&auto=format&fit=crop')` 
+        // For Light Mode: Use a different image or gradient via CSS in real app, here we simulate with inline logic if needed or just use classes.
+        // Let's use Tailwind classes for background to switch efficiently.
       }}
     >
+      {/* Background Layer: Handled via absolute div to support transitions */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-100 to-gray-200 dark:hidden"></div>
+      <div className="fixed inset-0 z-0 hidden dark:block bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=2560&auto=format&fit=crop')` }}></div>
+
       {/* 
          Unified Header Concept: 
       */}
@@ -361,23 +424,55 @@ function App() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
             
             {/* Logo / Title Area - Glassmorphism optimized for dark */}
-            <div className="w-full md:w-auto bg-gray-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-xl flex items-center justify-center md:justify-start gap-4 hover:bg-gray-900/50 transition-colors duration-300">
-               <div className="bg-gradient-to-br from-violet-600 to-fuchsia-600 p-3 rounded-xl shadow-lg shadow-violet-900/20">
-                 <CalendarIcon />
-               </div>
-               <div className="text-left">
-                  <h1 className="text-2xl font-bold text-white tracking-tight drop-shadow-sm leading-none">e-Harian</h1>
-                  <span className="text-xs text-gray-300 font-medium tracking-wider uppercase">Sistem Kehadiran</span>
-               </div>
+            <div className="flex items-center gap-4 w-full md:w-auto">
+              <div className="flex-1 md:flex-none bg-white/70 dark:bg-gray-900/40 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-4 shadow-xl flex items-center justify-start gap-4 hover:bg-white/80 dark:hover:bg-gray-900/50 transition-colors duration-300">
+                <div className="bg-gradient-to-br from-violet-600 to-fuchsia-600 p-3 rounded-xl shadow-lg shadow-violet-900/20">
+                  <CalendarIcon />
+                </div>
+                <div className="text-left">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight drop-shadow-sm leading-none">e-Harian</h1>
+                    <span className="text-xs text-gray-500 dark:text-gray-300 font-medium tracking-wider uppercase">Sistem Kehadiran</span>
+                </div>
+              </div>
+
+              {/* Theme Toggle Button */}
+              <div className="relative">
+                <button 
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="bg-white/70 dark:bg-gray-900/40 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-4 shadow-xl text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-gray-900/50 transition-all active:scale-95"
+                  title="Tukar Tema"
+                >
+                  {activeThemeIcon}
+                </button>
+
+                {isDropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)}></div>
+                    <div className="absolute top-full mt-2 left-0 z-50 w-36 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden ring-1 ring-black/5">
+                      <div className="p-1 space-y-0.5">
+                        <button onClick={() => { applyTheme('light'); setIsDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${theme === 'light' ? 'bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}`}>
+                          <SunIcon /> Light
+                        </button>
+                        <button onClick={() => { applyTheme('dark'); setIsDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${theme === 'dark' ? 'bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}`}>
+                          <MoonIcon /> Dark
+                        </button>
+                        <button onClick={() => { applyTheme('system'); setIsDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${theme === 'system' ? 'bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}`}>
+                          <SystemIcon /> System
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Clock Area */}
             <div className="w-full md:w-auto flex flex-col items-center md:items-end">
-               <div className="w-full md:w-auto bg-black/40 backdrop-blur-md rounded-2xl px-6 py-3 border border-white/5 shadow-lg text-white">
-                  <div className="text-xs font-medium text-blue-300 uppercase tracking-widest text-center mb-1">
+               <div className="w-full md:w-auto bg-white/50 dark:bg-black/40 backdrop-blur-md rounded-2xl px-6 py-3 border border-white/20 dark:border-white/5 shadow-lg text-gray-900 dark:text-white">
+                  <div className="text-xs font-medium text-violet-600 dark:text-blue-300 uppercase tracking-widest text-center mb-1">
                     {currentTime.toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </div>
-                  <div className="text-4xl font-mono font-bold tracking-wider drop-shadow-lg text-center text-white">
+                  <div className="text-4xl font-mono font-bold tracking-wider drop-shadow-sm text-center text-gray-800 dark:text-white">
                     {currentTime.toLocaleTimeString('ms-MY')}
                   </div>
                </div>
@@ -400,17 +495,17 @@ function App() {
         </div>
 
         {/* Month Navigation & Table - Glassmorphism Effect Dark */}
-        <div className="bg-gray-900/80 backdrop-blur-xl shadow-2xl shadow-black/20 rounded-3xl p-1 border border-white/10">
-           <div className="bg-gray-800/50 rounded-[1.4rem] p-4 sm:p-6">
+        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-2xl shadow-black/5 dark:shadow-black/20 rounded-3xl p-1 border border-white/40 dark:border-white/10">
+           <div className="bg-white/50 dark:bg-gray-800/50 rounded-[1.4rem] p-4 sm:p-6">
               
               {/* Username Input Section - Enhanced with Error Validation */}
-              <div className={`mb-6 bg-gray-800 rounded-xl p-4 shadow-sm border transition-all duration-300 ${usernameError ? 'border-red-400/50 ring-4 ring-red-900/20' : 'border-gray-700'} flex items-center gap-4`}>
-                 <div className={`p-2.5 rounded-lg transition-colors duration-300 ${usernameError ? 'bg-red-900/20 text-red-400' : 'bg-violet-900/30 text-violet-300'}`}>
+              <div className={`mb-6 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border transition-all duration-300 ${usernameError ? 'border-red-400/50 ring-4 ring-red-900/10' : 'border-gray-200 dark:border-gray-700'} flex items-center gap-4`}>
+                 <div className={`p-2.5 rounded-lg transition-colors duration-300 ${usernameError ? 'bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400' : 'bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300'}`}>
                     <UserIcon />
                  </div>
                  <div className="flex-1">
-                    <label htmlFor="username" className={`block text-xs font-semibold uppercase tracking-wider mb-1 transition-colors ${usernameError ? 'text-red-400' : 'text-gray-400'}`}>
-                       Nama Pekerja {usernameError && <span className="normal-case text-red-400 ml-2 italic">- Diperlukan</span>}
+                    <label htmlFor="username" className={`block text-xs font-semibold uppercase tracking-wider mb-1 transition-colors ${usernameError ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                       Nama Pekerja {usernameError && <span className="normal-case text-red-500 ml-2 italic">- Diperlukan</span>}
                     </label>
                     <input 
                       type="text" 
@@ -421,10 +516,10 @@ function App() {
                         if (e.target.value.trim()) setUsernameError('');
                       }}
                       placeholder="Masukkan nama penuh anda..."
-                      className={`w-full border-none p-0 font-medium placeholder-gray-500 focus:ring-0 bg-transparent text-sm sm:text-base transition-colors ${usernameError ? 'text-red-300' : 'text-white'}`}
+                      className={`w-full border-none p-0 font-medium placeholder-gray-400 focus:ring-0 bg-transparent text-sm sm:text-base transition-colors ${usernameError ? 'text-red-600 dark:text-red-300' : 'text-gray-900 dark:text-white'}`}
                     />
                     {usernameError && (
-                      <p className="text-xs text-red-400 mt-1 font-medium animate-pulse">
+                      <p className="text-xs text-red-500 dark:text-red-400 mt-1 font-medium animate-pulse">
                          * Sila isikan nama sebelum memuat turun laporan.
                       </p>
                     )}
@@ -436,14 +531,14 @@ function App() {
                 <div className="hidden xl:block xl:w-1/4"></div>
 
                 {/* Center: Month Navigation */}
-                <div className="w-full xl:w-1/2 flex items-center justify-between sm:justify-center space-x-2 sm:space-x-6 bg-gray-800 p-2 rounded-xl sm:rounded-full border border-gray-700 shadow-sm">
-                    <button onClick={() => changeMonth(-1)} className="p-2 sm:p-2.5 hover:bg-gray-700 rounded-full transition-all text-gray-400 hover:text-white">
+                <div className="w-full xl:w-1/2 flex items-center justify-between sm:justify-center space-x-2 sm:space-x-6 bg-white dark:bg-gray-800 p-2 rounded-xl sm:rounded-full border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <button onClick={() => changeMonth(-1)} className="p-2 sm:p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
                     </button>
-                    <h2 className="text-base sm:text-lg font-bold text-gray-200 uppercase tracking-wide whitespace-nowrap min-w-[120px] sm:min-w-[150px] text-center">
+                    <h2 className="text-base sm:text-lg font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap min-w-[120px] sm:min-w-[150px] text-center">
                       {currentMonth.toLocaleDateString('ms-MY', { month: 'long', year: 'numeric' })}
                     </h2>
-                    <button onClick={() => changeMonth(1)} className="p-2 sm:p-2.5 hover:bg-gray-700 rounded-full transition-all text-gray-400 hover:text-white">
+                    <button onClick={() => changeMonth(1)} className="p-2 sm:p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
                     </button>
                 </div>
@@ -458,7 +553,7 @@ function App() {
                        <select 
                           value={exportFilter}
                           onChange={(e) => setExportFilter(e.target.value as 'all' | 'filled')}
-                          className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-600 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 shadow-sm appearance-none cursor-pointer hover:bg-gray-700 transition-colors text-gray-200 font-medium"
+                          className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 shadow-sm appearance-none cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-200 font-medium"
                        >
                           <option value="all">Laporan: Semua Tarikh</option>
                           <option value="filled">Laporan: Tarikh Berisi Sahaja</option>
@@ -498,19 +593,19 @@ function App() {
           <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm transition-opacity" onClick={() => setNoteModal({...noteModal, isOpen: false})}></div>
             <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div className="inline-block align-bottom bg-gray-800 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-gray-700 ring-1 ring-white/10">
-              <div className="bg-gray-800 px-4 pt-5 pb-4 sm:p-8">
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-gray-200 dark:border-gray-700 ring-1 ring-black/5 dark:ring-white/10">
+              <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-8">
                 <div className="sm:flex sm:items-start">
-                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-900/30 sm:mx-0 sm:h-12 sm:w-12 text-blue-400 ring-8 ring-blue-900/10">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 sm:mx-0 sm:h-12 sm:w-12 text-blue-600 dark:text-blue-400 ring-8 ring-blue-50 dark:ring-blue-900/10">
                     <ChatBubbleIcon />
                   </div>
                   <div className="mt-3 text-center sm:mt-0 sm:ml-5 sm:text-left w-full">
-                    <h3 className="text-lg leading-6 font-bold text-white" id="modal-title">
+                    <h3 className="text-lg leading-6 font-bold text-gray-900 dark:text-white" id="modal-title">
                       Catatan: {new Date(noteModal.date).toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </h3>
                     <div className="mt-4">
                       <textarea
-                        className="w-full shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full text-base border-gray-700 rounded-2xl p-4 transition-shadow bg-gray-900 text-white placeholder-gray-500"
+                        className="w-full shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full text-base border-gray-300 dark:border-gray-700 rounded-2xl p-4 transition-shadow bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400"
                         rows={4}
                         placeholder="Masukkan catatan anda di sini..."
                         value={noteModal.text}
@@ -520,7 +615,7 @@ function App() {
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-800/50 px-4 py-4 sm:px-8 sm:flex sm:flex-row-reverse gap-3 flex-col sm:flex-row border-t border-gray-700">
+              <div className="bg-gray-50 dark:bg-gray-800/50 px-4 py-4 sm:px-8 sm:flex sm:flex-row-reverse gap-3 flex-col sm:flex-row border-t border-gray-200 dark:border-gray-700">
                 <Button variant="primary" onClick={handleSaveNote} className="!rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 w-full sm:w-auto">
                   Simpan
                 </Button>
@@ -534,7 +629,7 @@ function App() {
       )}
 
       {/* Footer */}
-      <footer className="mt-12 text-center text-white/50 text-sm pb-8 font-medium drop-shadow-md">
+      <footer className="mt-12 text-center text-gray-500 dark:text-white/50 text-sm pb-8 font-medium drop-shadow-md">
         <p>&copy; {new Date().getFullYear()} Sistem e-Harian.</p>
       </footer>
     </div>

@@ -14,12 +14,12 @@ export const Button: React.FC<ButtonProps> = ({
   ...props 
 }) => {
   
-  const baseStyles = "inline-flex items-center justify-center px-6 py-2.5 border text-sm font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5";
+  const baseStyles = "inline-flex items-center justify-center px-6 py-2.5 border text-sm font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5";
   
   const variants = {
     primary: "border-transparent text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 focus:ring-violet-500",
-    // Updated secondary for Dark Mode: Dark gray background, light text
-    secondary: "border-gray-600 text-gray-200 bg-gray-800 hover:bg-gray-700 hover:text-white focus:ring-gray-500",
+    // Secondary: Light (White bg, gray text) | Dark (Gray-800 bg, white text)
+    secondary: "border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-gray-500",
     danger: "border-transparent text-white bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 focus:ring-red-500",
     success: "border-transparent text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 focus:ring-emerald-500",
   };

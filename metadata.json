@@ -1,5 +1,5 @@
 {
   "name": "e-Harian",
-  "description": "Aplikasi rekod kehadiran harian (Masuk/Keluar) dengan eksport PDF dan CSV.",
+  "description": "Aplikasi rekod kehadiran harian (Masuk/Keluar) dengan eksport PDF, CSV dan TXT.",
   "requestFramePermissions": []
 }
