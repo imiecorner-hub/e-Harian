@@ -83,7 +83,7 @@ export const PunchTable: React.FC<PunchTableProps> = ({ records, currentMonth, o
         {allDays.map(({ day, dateStr, record, isWeekend, dateObj, formattedDate }) => (
           <div key={dateStr} className={`p-4 rounded-xl border shadow-lg transition-all ${isWeekend ? 'bg-orange-50 border-orange-200 dark:bg-orange-900/10 dark:border-orange-800/30' : 'bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700'}`}>
             {/* Header: Date and Day */}
-            <div className="flex justify-between items-center mb-3 pb-2 border-b border-gray-100 dark:border-gray-700">
+            <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100 dark:border-gray-700">
               <span className="font-bold text-gray-800 dark:text-gray-200 font-mono text-sm">{formattedDate}</span>
               <div className="flex items-center gap-2">
                  <span className={`text-sm font-medium ${isWeekend ? "text-orange-600 dark:text-orange-400" : "text-gray-500 dark:text-gray-400"}`}>
@@ -94,23 +94,23 @@ export const PunchTable: React.FC<PunchTableProps> = ({ records, currentMonth, o
             </div>
 
             {/* Body: Inputs */}
-            <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="grid grid-cols-2 gap-5 mb-4">
               <div>
-                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Masuk</label>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider pl-1">Masuk</label>
                 <input 
                   type="time" 
                   value={record.inTime || ''} 
                   onChange={(e) => onEdit(dateStr, 'inTime', e.target.value)}
-                  className={`w-full rounded-lg text-sm px-2 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400`}
+                  className={`w-full rounded-xl text-base px-3 py-3 border border-gray-300 dark:border-gray-600 shadow-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder-gray-400 transition-all`}
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Keluar</label>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider pl-1">Keluar</label>
                 <input 
                   type="time" 
                   value={record.outTime || ''} 
                   onChange={(e) => onEdit(dateStr, 'outTime', e.target.value)}
-                  className={`w-full rounded-lg text-sm px-2 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400`}
+                  className={`w-full rounded-xl text-base px-3 py-3 border border-gray-300 dark:border-gray-600 shadow-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder-gray-400 transition-all`}
                 />
               </div>
             </div>
